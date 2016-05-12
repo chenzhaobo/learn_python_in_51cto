@@ -1,0 +1,11 @@
+本作业为计算器
+程序有以下函数：
+formatEquation 格式化公式
+findErrorChar 查找非法字符
+findErrorOperator 查找连续多次出现的运算符号
+addSubtract 加减运算，使用递归功能
+multiplicationDivision 乘除运算，使用递归功能
+removeBrackets  提取括号内的公式计算，使用递归功能
+
+当前程序已默认设置了一个公式，直接运行程序即可。
+如需手动输入，需将第93行代码放开，并将第94行代码注释。
