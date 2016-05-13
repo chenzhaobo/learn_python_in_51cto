@@ -42,15 +42,17 @@ def getQQ(filePath):
         num = 1
         for i in f.readlines():
             i = i.strip()
+            if  i.endswith(','):
+                qq = i.strip(',')
+                qqDict[qq] = qq
             if not i:
                 break
-            if  i.endswith(','):
-                i += 'no name '+str(num)
             qq,seq = i.split(',')
             qqDict[seq] = qq
     return qqDict
 def run():
-    import re,json
+    import re,json,time
+    print("程序初始化中...")
     posturl = 'http://crm.oldboyedu.com/crm/grade/single/'
     filePath = 'qq.txt'
     re_rule = re.compile('<tbody><tr>(.*?)</tr></tbody>')
@@ -59,11 +61,13 @@ def run():
     cookies_support = urllib.request.HTTPCookieProcessor(cj)
     opener = urllib.request.build_opener(cookies_support,urllib.request.HTTPHandler)
     urllib.request.install_opener(opener)
+    print('获取cookie...')
     try :
       response = opener.open(posturl)
       csrfmiddlewaretoken = getCookie(cj)
     except:
       print("获取cookie失败")
+    print('读取QQ号码...')
     try :
       qqDict = getQQ(filePath)
     except:
@@ -73,6 +77,8 @@ def run():
     if not qqDict :
       print("程序退出！")
       exit()
+    print('爬取成绩开始，将需要一些时间，请勿关闭程序....')
+    stratTime = time.time()
     for seq,qq in qqDict.items():
         #print("获取信息,qq号：",qq)
         try :
@@ -99,10 +105,15 @@ def run():
         req.insert(0,qq)
         req.insert(0,seq)
         allScore.append(req)
-    for i in allScore:
-      print(i)
-    with open('result.txt','w') as f:
-        json.dump(allScore,f)
+    endTime = time.time()
+    print('数据已完成下载,用时：%s秒'%(endTime - stratTime))
+    # for i in allScore:
+    #   print(i)
+    try:
+        with open('result.txt','w') as f:
+            json.dump(allScore,f)
+    except:
+        print('写入result.txt文件失败....')
 def getScore(text,re_rule,re_rule2):
     import re
 
@@ -113,4 +124,4 @@ def getScore(text,re_rule,re_rule2):
     req = req[0]
     req = re.findall(re_rule2,req)
     return req
-run()
+

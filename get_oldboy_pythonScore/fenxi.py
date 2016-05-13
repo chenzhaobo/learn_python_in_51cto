@@ -1,10 +1,73 @@
-import json
-with open('result.txt','r') as f:
-    for i in f:
-        list1 = json.dumps(i)
-
-list1=[["35", "501193747", "170", "B+", "D", "D", "B+", "N/A"], ["41", "442172369", "340", "B+", "B+", "B+", "B+", "N/A"], ["2", "813231615", "155", "B-", "B+", "D", "D", "N/A"], ["17", "27206461", "0", "D", "D", "D", "D", "N/A"], ["23", "894725902"], ["3", "434330017", "180", "D", "A", "A", "D", "N/A"], ["29", "15308403545", "345", "A", "B+", "B+", "B+", "N/A"], ["21", "1172861184", "290", "B", "B", "C", "B", "N/A"], ["1", "493513100", "225", "B-", "B-", "D", "B+", "N/A"], ["no name 1", "237385255"], ["14", "5272689", "370", "A", "A", "A+", "A", "N/A"], ["30", "2547788", "0", "D", "D", "D", "D", "N/A"], ["9", "1016150581", "0", "D", "D", "D", "D", "N/A"], ["31", "118146449", "350", "B+", "A", "A", "B+", "N/A"], ["5", "378777322", "245", "B", "B+", "D", "B", "N/A"], ["38", "109368424", "345", "A", "B+", "B+", "B+", "N/A"], ["7", "710275039", "355", "A", "A", "B+", "A", "N/A"], ["25", "1241424377", "335", "B", "B+", "A", "B", "N/A"], ["39", "584641574", "335", "B", "B+", "A", "B", "N/A"], ["28", "178569706", "250", "A", "A", "B-", "D", "N/A"], ["13", "437512689", "355", "B+", "A", "A", "A", "N/A"], ["16", "121440150", "250", "B+", "B", "B+", "D", "N/A"], ["33", "972102425", "0", "D", "D", "D", "D", "N/A"], ["26", "290070744", "330", "B", "B", "B+", "B+", "N/A"], ["37", "676596084", "0", "N/A", "N/A", "D", "D", "N/A"], ["42", "805824493", "85", "N/A", "N/A", "D", "B+", "N/A"], ["27", "290528767", "220", "B+", "B+", "C", "D", "N/A"], ["36", "384526074", "140", "B", "C+", "D", "D", "N/A"], ["4", "409966346", "0", "D", "D", "D", "D", "N/A"], ["32", "369545989", "370", "A", "A", "A+", "A", "N/A"], ["24", "634086977", "0", "D", "D", "D", "D", "N/A"], ["20", "33532767", "80", "B", "D", "D", "D", "N/A"], ["40", "523405048", "0", "N/A", "N/A", "D", "D", "N/A"], ["6", "295964805", "260", "B+", "A", "D", "B+", "N/A"], ["8", "114648340", "380", "A", "A+", "A+", "A", "N/A"], ["11", "307126079", "0", "D", "D", "D", "D", "N/A"], ["18", "763227", "255", "B", "A", "D", "B+", "N/A"], ["22", "642445498", "265", "A", "A", "D", "B+", "N/A"], ["34", "610550690", "330", "B", "B+", "B", "B+", "N/A"], ["19", "244131566", "245", "B", "B", "B+", "D", "N/A"], ["15", "776214156", "345", "B+", "B+", "A", "B+", "N/A"], ["10", "1205645845", "70", "B-", "D", "D", "D", "N/A"]]
-
+import json,prettytable,re
+def loadlist():
+    with open('result.txt','r') as f:
+        for i in f:
+            list1 = json.dumps(i)
+    list1 = eval(json.loads(list1))
+    return list1
+def formatAndPrint(list1):
+    namelist = ['学号','QQ号','总分']
+    for i in list1:
+        if len(i) > 2:
+            daysNum = len(i[3:])
+            break
+    for i in range(daysNum):
+        namelist.append('day'+str(i+1))
+    x = prettytable.PrettyTable(namelist)
+    for i in list1:
+        if len(i)>2:
+            x.add_row(i)
+        else:
+            for k in range(daysNum-len(i)):
+                i.append(' ')
+    print(x)
+def maoPao(list1,key=None):
+    a = len(list1)
+    if not key or key == '1':
+        key = 0
+    elif key == '2':
+        key = 2
+    maxnum = 0
+    #解决qq号没有成绩的BUG
+    for i in list1:
+        if len(i) > 2:
+            daysNum = len(i)
+            if daysNum > maxnum or maxnum == 0:
+                maxnum = daysNum
+    for i in range(len(list1)):
+        if len(list1[i])>2 :
+            pass
+        else:
+            for k in range(maxnum-len(list1[i])):
+                list1[i].append('0')
+    #排序
+    for i in range(a):
+        for j in range(a-i-1):
+            try:
+                if int(list1[j][key]) > int(list1[j+1][key]):
+                    temp = list1[j+1]
+                    list1[j+1] = list1[j]
+                    list1[j] = temp
+            except :
+                print('排序出错，：')
+                print('循环次数：list[i] = %s,j=%s,key=%s'%(list1[i],j,key))
+                print(list1)
+    for i in list1:
+        if len(i) != daysNum:
+            print(i,daysNum)
+    return list1
+def reverse(list1):
+    return  list1.reverse()
+def run(paiXuKey=None,ifReverse=False):
+    list1 = loadlist()
+    list1 = maoPao(list1,paiXuKey)
+    if ifReverse:
+         reverse(list1)
+    formatAndPrint(list1)
+# paiXuKey='2'
+# ifReverse = True
+# run(paiXuKey,ifReverse)
+'''
 x = ['A+','A','B+','B','B-','C+','C','C-','D','N/A','COPY','FAIL']
 d = {}
 for i in list1:
@@ -17,8 +80,9 @@ for i in list1:
 k ={}
 for i in list1:
     if len(i) >2:
-        k.setdefault(int(i[2]),i[0])           
+        k.setdefault(int(i[2]),i[0])
 keys = list(k.keys())
 keys.sort()
 for i in keys:
     print('学号:',k[i],'    总分：',i)
+'''
